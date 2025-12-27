@@ -1,0 +1,21 @@
+version: '3.8'
+
+# run: docker-compose up -d
+# stop: docker-compose down
+# reset db: docker-compose down -v
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: stockle-db
+    environment:
+      POSTGRES_DB: stockle
+      POSTGRES_USER: stockle
+      POSTGRES_PASSWORD: stockle
+    ports:
+      - "5432:5432"
+    volumes:
+      - stockle-data:/var/lib/postgresql/data
+
+volumes:
+  stockle-data:

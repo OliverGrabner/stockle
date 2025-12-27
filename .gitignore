@@ -1,0 +1,25 @@
+# Java/Maven
+backend/target/
+*.class
+*.jar
+*.war
+
+# Python
+data-fetcher/__pycache__/
+data-fetcher/*.pyc
+data-fetcher/venv/
+data-fetcher/.venv/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+*.env
+.env.*
