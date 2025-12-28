@@ -23,3 +23,6 @@ Thumbs.db
 .env
 *.env
 .env.*
+
+# WIP
+todo.md

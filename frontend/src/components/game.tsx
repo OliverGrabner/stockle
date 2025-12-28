@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { StockSearch } from "@/components/stock-search"
 import { GuessRow, GuessHeader, EmptyRow } from "@/components/guess-row"
 import { WinDialog } from "@/components/win-dialog"
+import { LoseDialog } from "@/components/lose-dialog"
 import { HintDisplay } from "@/components/hint-display"
 import { PriceChart } from "@/components/price-chart"
-import { Stock } from "@/data/stocks"
+import { stocks as staticStocks, Stock } from "@/data/stocks"
 import { GuessResult } from "@/types/game"
+import { loadStocksWithMetadata } from "@/lib/stock-service"
 
 interface GuessWithLogo {
   result: GuessResult
@@ -22,13 +24,20 @@ export function Game({
   const [guesses, setGuesses] = useState<GuessWithLogo[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showWinDialog, setShowWinDialog] = useState(false)
+  const [showLoseDialog, setShowLoseDialog] = useState(false)
+  const [answer, setAnswer] = useState<{ ticker: string; name: string } | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [hints, setHints] = useState<{ sector?: string; industry?: string; ticker?: string }>({})
+  const [stocks, setStocks] = useState<Stock[]>(staticStocks)
 
   const MAX_GUESSES = 6
   const hasWon = guesses.some(g => g.result.correct)
   const hasLost = guesses.length >= MAX_GUESSES && !hasWon
   const gameOver = hasWon || hasLost
+
+  useEffect(() => {
+    loadStocksWithMetadata().then(setStocks)
+  }, [])
 
   const handleRequestHint = async () => {
     const nextLevel = hintLevel + 1
@@ -74,6 +83,18 @@ export function Game({
 
       if (result.correct) {
         setShowWinDialog(true)
+      } else if (guesses.length + 1 >= MAX_GUESSES) {
+        // Fetch the answer when player loses
+        try {
+          const answerRes = await fetch('/api/puzzle/today/answer')
+          if (answerRes.ok) {
+            const answerData = await answerRes.json()
+            setAnswer(answerData)
+          }
+        } catch (e) {
+          console.error('Failed to fetch answer:', e)
+        }
+        setShowLoseDialog(true)
       }
     } catch (error) {
       console.error('Failed to submit guess:', error)
@@ -95,7 +116,7 @@ export function Game({
       <PriceChart className="px-4" />
 
       <div className="flex flex-col items-center gap-4 w-full max-w-sm">
-        <StockSearch onSubmit={handleSubmit} disabled={isLoading || gameOver} />
+        <StockSearch onSubmit={handleSubmit} disabled={gameOver} loading={isLoading} stocks={stocks} />
         <HintDisplay
           hints={hints}
           hintLevel={hintLevel}
@@ -119,6 +140,13 @@ export function Game({
         open={showWinDialog}
         guesses={guesses}
         onClose={() => setShowWinDialog(false)}
+      />
+
+      <LoseDialog
+        open={showLoseDialog}
+        guesses={guesses}
+        answer={answer}
+        onClose={() => setShowLoseDialog(false)}
       />
     </div>
   )

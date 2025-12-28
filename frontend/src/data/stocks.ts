@@ -2,6 +2,8 @@ export interface Stock {
   ticker: string
   name: string
   logo: string
+  sector?: string
+  industry?: string
 }
 
 const TOKEN = process.env.NEXT_PUBLIC_LOGOKIT_TOKEN || ""

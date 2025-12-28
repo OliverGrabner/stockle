@@ -13,35 +13,70 @@ interface ChartDataPoint {
   value: number
 }
 
+const filterDataByRange = (data: ChartDataPoint[], range: Range): ChartDataPoint[] => {
+  if (data.length === 0) return []
+
+  const latestDate = new Date(data[data.length - 1].time)
+  let cutoffDate: Date
+
+  switch (range) {
+    case "1W":
+      cutoffDate = new Date(latestDate)
+      cutoffDate.setDate(cutoffDate.getDate() - 7)
+      return data.filter(point => new Date(point.time) >= cutoffDate)
+
+    case "1M":
+      cutoffDate = new Date(latestDate)
+      cutoffDate.setMonth(cutoffDate.getMonth() - 1)
+      return data.filter(point => new Date(point.time) >= cutoffDate)
+
+    case "1Y":
+      cutoffDate = new Date(latestDate)
+      cutoffDate.setFullYear(cutoffDate.getFullYear() - 1)
+      return data.filter(point => new Date(point.time) >= cutoffDate)
+
+    case "5Y":
+    default:
+      return data
+  }
+}
+
 export function PriceChart({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<"Area"> | null>(null)
   const [range, setRange] = useState<Range>("1Y")
-  const [data, setData] = useState<ChartDataPoint[]>([])
+  const [fullData, setFullData] = useState<ChartDataPoint[]>([])
+  const [filteredData, setFilteredData] = useState<ChartDataPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const { percentChange, isPositive } = useMemo(() => {
-    if (data.length < 2) return { percentChange: 0, isPositive: true }
-    const firstValue = data[0]?.value ?? 0
-    const lastValue = data[data.length - 1]?.value ?? 0
+    if (filteredData.length < 2) return { percentChange: 0, isPositive: true }
+    const firstValue = filteredData[0]?.value ?? 0
+    const lastValue = filteredData[filteredData.length - 1]?.value ?? 0
     if (firstValue === 0) return { percentChange: 0, isPositive: true }
     const change = ((lastValue - firstValue) / firstValue) * 100
     return { percentChange: change, isPositive: change >= 0 }
-  }, [data])
+  }, [filteredData])
+
+  useEffect(() => {
+    if (fullData.length === 0) return
+    const filtered = filterDataByRange(fullData, range)
+    setFilteredData(filtered)
+  }, [fullData, range])
 
   useEffect(() => {
     setIsLoading(true)
-    fetch(`/api/puzzle/today/chart?range=${range}`)
+    fetch(`/api/puzzle/today/chart`)
       .then((res) => res.json())
       .then((json) => {
         if (json.data) {
-          setData(json.data)
+          setFullData(json.data)
         }
       })
       .catch(console.error)
       .finally(() => setIsLoading(false))
-  }, [range])
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -60,6 +95,11 @@ export function PriceChart({ className }: { className?: string }) {
       timeScale: {
         borderVisible: false,
         timeVisible: false,
+        rightOffset: 0,
+        barSpacing: 6,
+        fixLeftEdge: true,
+        fixRightEdge: true,
+        lockVisibleTimeRangeOnResize: true,
       },
       rightPriceScale: {
         borderVisible: false,
@@ -92,7 +132,7 @@ export function PriceChart({ className }: { className?: string }) {
   }, [])
 
   useEffect(() => {
-    if (!chartRef.current || data.length === 0) return
+    if (!chartRef.current || filteredData.length === 0) return
 
     if (seriesRef.current) {
       chartRef.current.removeSeries(seriesRef.current)
@@ -111,11 +151,11 @@ export function PriceChart({ className }: { className?: string }) {
       lastValueVisible: false,
     })
 
-    series.setData(data)
+    series.setData(filteredData)
     seriesRef.current = series
 
     chartRef.current.timeScale().fitContent()
-  }, [data, isPositive])
+  }, [filteredData, isPositive])
 
   return (
     <div className={cn("w-full max-w-4xl", className)}>
@@ -133,7 +173,7 @@ export function PriceChart({ className }: { className?: string }) {
             </Button>
           ))}
         </div>
-        {data.length > 0 && (
+        {filteredData.length > 0 && (
           <span
             className={cn(
               "text-lg font-semibold",

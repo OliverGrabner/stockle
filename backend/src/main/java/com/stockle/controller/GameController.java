@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -34,6 +35,63 @@ public class GameController {
         this.stockRepo = stockRepository;
         this.puzzles = dailyPuzzleRepository;
         this.objectMapper = new ObjectMapper();
+    }
+
+    @GetMapping("/stocks/metadata")
+    public ResponseEntity<?> getStocksMetadata() {
+        List<Stock> allStocks = stockRepo.findAll();
+
+        List<Map<String, Object>> stockMetadata = allStocks.stream()
+            .map(stock -> {
+                Map<String, Object> data = new HashMap<>();
+                data.put("ticker", stock.getTicker());
+                data.put("name", stock.getCompanyName());
+                data.put("sector", stock.getSector());
+                data.put("industry", stock.getIndustry());
+                return data;
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of("stocks", stockMetadata));
+    }
+
+    @GetMapping("/stocks/filters")
+    public ResponseEntity<?> getFilterOptions() {
+        List<Stock> allStocks = stockRepo.findAll();
+
+        List<String> sectors = allStocks.stream()
+            .map(Stock::getSector)
+            .filter(s -> s != null && !s.isBlank())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+
+        List<String> industries = allStocks.stream()
+            .map(Stock::getIndustry)
+            .filter(i -> i != null && !i.isBlank())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(Map.of(
+            "sectors", sectors,
+            "industries", industries
+        ));
+    }
+
+    @GetMapping("/puzzle/today/answer")
+    public ResponseEntity<?> getAnswer() {
+        LocalDate today = LocalDate.now();
+        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        if (puzzle == null) return ResponseEntity.notFound().build();
+
+        Stock stock = stockRepo.findById(puzzle.getTicker()).orElse(null);
+        if (stock == null) return ResponseEntity.internalServerError().body(Map.of("error", "puzzle stock not found"));
+
+        return ResponseEntity.ok(Map.of(
+            "ticker", stock.getTicker(),
+            "name", stock.getCompanyName()
+        ));
     }
 
     @GetMapping("/puzzle/today/hint")
@@ -56,7 +114,7 @@ public class GameController {
     }
 
     @GetMapping("/puzzle/today/chart")
-    public ResponseEntity<?> getChartData(@RequestParam(defaultValue = "1M") String range) {
+    public ResponseEntity<?> getChartData() {
         LocalDate today = LocalDate.now();
         DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
         if (puzzle == null) return ResponseEntity.notFound().build();
@@ -77,91 +135,14 @@ public class GameController {
                 .body(Map.of("error", "No price history available"));
         }
 
-        List<Map<String, Object>> chartData = aggregateByRange(priceHistory, range);
-        return ResponseEntity.ok(Map.of("range", range, "data", chartData));
-    }
+        List<Map<String, Object>> chartData = priceHistory.stream()
+            .map(point -> Map.of(
+                "time", point.get("date"),
+                "value", getClosePrice(point)
+            ))
+            .collect(Collectors.toList());
 
-    private List<Map<String, Object>> aggregateByRange(List<Map<String, Object>> data, String range) {
-        if (data.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        String latestDateStr = (String) data.get(data.size() - 1).get("date");
-        LocalDate latestDate = LocalDate.parse(latestDateStr);
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        switch (range.toUpperCase()) {
-            case "1W":
-                LocalDate weekStart = latestDate.minusDays(7);
-                for (Map<String, Object> point : data) {
-                    LocalDate pointDate = LocalDate.parse((String) point.get("date"));
-                    if (!pointDate.isBefore(weekStart)) {
-                        result.add(Map.of(
-                            "time", point.get("date"),
-                            "value", getClosePrice(point)
-                        ));
-                    }
-                }
-                break;
-
-            case "1M":
-                LocalDate monthStart = latestDate.minusMonths(1);
-                for (Map<String, Object> point : data) {
-                    LocalDate pointDate = LocalDate.parse((String) point.get("date"));
-                    if (!pointDate.isBefore(monthStart)) {
-                        result.add(Map.of(
-                            "time", point.get("date"),
-                            "value", getClosePrice(point)
-                        ));
-                    }
-                }
-                break;
-
-            case "1Y":
-                LocalDate yearStart = latestDate.minusYears(1);
-                Map<String, Double> weeklyData = new HashMap<>();
-                Map<String, String> weeklyDates = new HashMap<>();
-
-                for (Map<String, Object> point : data) {
-                    LocalDate pointDate = LocalDate.parse((String) point.get("date"));
-                    if (!pointDate.isBefore(yearStart)) {
-                        LocalDate weekEnd = pointDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
-                        String weekKey = weekEnd.toString();
-                        weeklyData.put(weekKey, getClosePrice(point));
-                        weeklyDates.put(weekKey, (String) point.get("date"));
-                    }
-                }
-
-                weeklyDates.keySet().stream()
-                    .sorted()
-                    .forEach(weekKey -> result.add(Map.of(
-                        "time", weeklyDates.get(weekKey),
-                        "value", weeklyData.get(weekKey)
-                    )));
-                break;
-
-            case "5Y":
-            default:
-                Map<String, Double> monthlyData = new HashMap<>();
-                Map<String, String> monthlyDates = new HashMap<>();
-
-                for (Map<String, Object> point : data) {
-                    LocalDate pointDate = LocalDate.parse((String) point.get("date"));
-                    String monthKey = pointDate.getYear() + "-" + String.format("%02d", pointDate.getMonthValue());
-                    monthlyData.put(monthKey, getClosePrice(point));
-                    monthlyDates.put(monthKey, (String) point.get("date"));
-                }
-
-                monthlyDates.keySet().stream()
-                    .sorted()
-                    .forEach(monthKey -> result.add(Map.of(
-                        "time", monthlyDates.get(monthKey),
-                        "value", monthlyData.get(monthKey)
-                    )));
-                break;
-        }
-
-        return result;
+        return ResponseEntity.ok(Map.of("data", chartData));
     }
 
     private Double getClosePrice(Map<String, Object> point) {
@@ -262,10 +243,11 @@ public class GameController {
 
         Double guessDividend = guess.getDividendYield();
         Double targetDividend = target.getDividendYield();
-        comparisons.put("dividendYield", Map.of(
-            "value", formatDividendYield(guessDividend),
-            "status", compareNullableNumbers(guessDividend, targetDividend)
-        ));
+        Map<String, Object> dividendComp = new HashMap<>();
+        dividendComp.put("value", formatDividendYield(guessDividend));
+        dividendComp.put("status", compareNullableNumbers(guessDividend, targetDividend));
+        dividendComp.put("closeness", calculateCloseness(guessDividend != null ? guessDividend : 0.0, targetDividend != null ? targetDividend : 0.0));
+        comparisons.put("dividendYield", dividendComp);
 
         Map<String, Object> guessInfo = new HashMap<>();
         guessInfo.put("ticker", guess.getTicker());
@@ -350,6 +332,9 @@ public class GameController {
     private double calculateCloseness(double guessed, double target) {
         if (target == 0 && guessed == 0) return 1.0;
         if (target == 0 || guessed == 0) return 0.0;
-        return Math.min(guessed, target) / Math.max(guessed, target);
+        double result = Math.min(guessed, target) / Math.max(guessed, target);
+        // Guard against NaN or Infinity
+        if (Double.isNaN(result) || Double.isInfinite(result)) return 0.0;
+        return result;
     }
 }
