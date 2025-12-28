@@ -24,5 +24,8 @@ Thumbs.db
 *.env
 .env.*
 
+# K8s secrets
+k8s/stockle-secrets.yaml
+
 # WIP
 todo.md
