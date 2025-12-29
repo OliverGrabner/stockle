@@ -7,21 +7,21 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: backend
+      app: backend-deployment
   template:
     metadata:
       labels:
-        app: backend
+        app: backend-deployment
     spec:
       containers:
       - name: backend
-        image: stockle-backend:latest
+        image: localhost:32000/stockle-backend:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/stockle
+          value: jdbc:postgresql://stockle-postgres:5432/stockle
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
             secretKeyRef:
@@ -51,11 +51,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: stockle-backend-service
   namespace: stockle
 spec:
   selector:
-    app: backend
+    app: backend-deployment
   type: ClusterIP
   ports:
   - port: 8080

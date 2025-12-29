@@ -14,6 +14,6 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: backend
+            name: stockle-backend-service
             port:
               number: 8080

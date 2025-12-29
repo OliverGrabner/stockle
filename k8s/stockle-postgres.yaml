@@ -1,13 +1,30 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: stockle
+  name: postgres-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Disk3/Documents/stockle/pv/postgres-pv-volume"
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
+  name: postgres-pv-claim
   namespace: stockle
 spec:
+  storageClassName: manual
   accessModes: [ReadWriteOnce]
   resources:
     requests:
-      storage: 10Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,11 +35,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: stockle-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: stockle-postgres
     spec:
       containers:
       - name: postgres
@@ -60,16 +77,18 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: postgres-pvc
+          claimName: postgres-pv-claim
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres
+  name: stockle-postgres
   namespace: stockle
 spec:
   selector:
-    app: postgres
+    app: stockle-postgres
+  type: NodePort
   ports:
   - port: 5432
     targetPort: 5432
+    nodePort: 30333

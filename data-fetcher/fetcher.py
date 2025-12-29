@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_CONFIG = {
-    "host": os.getenv("SUPABASE_DB_HOST", "db.uphiutebqddcwyykaemb.supabase.co"),
-    "port": int(os.getenv("SUPABASE_DB_PORT", 5432)),
-    "database": os.getenv("SUPABASE_DB_NAME", "postgres"),
-    "user": os.getenv("SUPABASE_DB_USER", "postgres"),
-    "password": os.getenv("SUPABASE_DB_PASSWORD")
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": int(os.getenv("DB_PORT", 5432)),
+    "database": os.getenv("DB_NAME", "stockle"),
+    "user": os.getenv("DB_USER", "stockle"),
+    "password": os.getenv("DB_PASSWORD")
 }
 
 # Top 250 US stocks by market cap
@@ -199,10 +199,10 @@ def set_daily_puzzle(conn):
 
 def main():
     if not DB_CONFIG["password"]:
-        print("Error: SUPABASE_DB_PASSWORD not set. Create a .env file.")
+        print("Error: DB_PASSWORD not set.")
         return
 
-    print("Connecting to Supabase...")
+    print("Connecting to database...")
     conn = psycopg2.connect(**DB_CONFIG)
     print("Connected!\n")
 
