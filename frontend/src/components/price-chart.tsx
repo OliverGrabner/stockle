@@ -68,7 +68,12 @@ export function PriceChart({ className }: { className?: string }) {
   useEffect(() => {
     setIsLoading(true)
     fetch(`/api/puzzle/today/chart`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        return res.json()
+      })
       .then((json) => {
         if (json.data) {
           setFullData(json.data)
