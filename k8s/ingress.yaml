@@ -6,14 +6,14 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
-  ingressClassName: nginx
+  ingressClassName: public
   rules:
-  - http:
-      paths:
-      - path: /stockle(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: stockle-backend-service
-            port:
-              number: 8080
+    - http:
+        paths:
+          - path: /stockle(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: stockle-backend-service
+                port:
+                  number: 8080

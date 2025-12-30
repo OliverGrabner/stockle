@@ -14,39 +14,39 @@ spec:
         app: backend-deployment
     spec:
       containers:
-      - name: backend
-        image: localhost:32000/stockle-backend:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 8080
-        env:
-        - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://stockle-postgres:5432/stockle
-        - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: stockle-secrets
-              key: postgres-user
-        - name: SPRING_DATASOURCE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: stockle-secrets
-              key: postgres-password
-        - name: FRONTEND_URL
-          value: https://stockle-xi.vercel.app
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-        livenessProbe:
-          httpGet:
-            path: /api/puzzle/today
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
+        - name: backend
+          image: localhost:32000/stockle-backend:2025-12-28-a
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://stockle-postgres:5432/stockle
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: stockle-secrets
+                  key: postgres-user
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stockle-secrets
+                  key: postgres-password
+            - name: FRONTEND_URL
+              value: https://stockle-xi.vercel.app
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /api/puzzle/today
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
@@ -58,5 +58,5 @@ spec:
     app: backend-deployment
   type: ClusterIP
   ports:
-  - port: 8080
-    targetPort: 8080
+    - port: 8080
+      targetPort: 8080

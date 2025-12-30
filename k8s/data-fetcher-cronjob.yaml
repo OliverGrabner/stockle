@@ -15,33 +15,33 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-          - name: fetcher
-            image: localhost:32000/stockle-data-fetcher:latest
-            imagePullPolicy: IfNotPresent
-            env:
-            - name: DB_HOST
-              value: stockle-postgres
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: stockle-secrets
-                  key: postgres-db
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: stockle-secrets
-                  key: postgres-user
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: stockle-secrets
-                  key: postgres-password
-            resources:
-              requests:
-                memory: "256Mi"
-                cpu: "100m"
-              limits:
-                memory: "512Mi"
-                cpu: "500m"
+            - name: fetcher
+              image: localhost:32000/stockle-data-fetcher:2025-12-28-a
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: DB_HOST
+                  value: stockle-postgres
+                - name: DB_PORT
+                  value: "5432"
+                - name: DB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: stockle-secrets
+                      key: postgres-db
+                - name: DB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: stockle-secrets
+                      key: postgres-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: stockle-secrets
+                      key: postgres-password
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "100m"
+                limits:
+                  memory: "512Mi"
+                  cpu: "500m"
