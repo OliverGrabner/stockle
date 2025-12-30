@@ -3,6 +3,9 @@ kind: Ingress
 metadata:
   name: stockle-ingress
   namespace: stockle
+  annotations:
+    nginx.ingress.kubernetes.io/limit-rps: "20"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
 spec:
   ingressClassName: public
   rules:
