@@ -11,10 +11,11 @@ interface LoseDialogProps {
   open: boolean
   guesses: { result: GuessResult }[]
   answer: { ticker: string; name: string } | null
+  gaveUp?: boolean
   onClose: () => void
 }
 
-export function LoseDialog({ open, guesses, answer, onClose }: LoseDialogProps) {
+export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: LoseDialogProps) {
   const answerStock = answer ? stocks.find(s => s.ticker === answer.ticker) : null
 
   const generateShareText = () => {
@@ -29,7 +30,8 @@ export function LoseDialog({ open, guesses, answer, onClose }: LoseDialogProps) 
         .join("")
     }).join("\n")
 
-    return `STOCKLE X/6\n\n${rows}`
+    const suffix = gaveUp ? " (gave up)" : ""
+    return `STOCKLE X/6${suffix}\n\n${rows}`
   }
 
   const handleCopy = async () => {
@@ -41,7 +43,7 @@ export function LoseDialog({ open, guesses, answer, onClose }: LoseDialogProps) 
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl">Game Over</DialogTitle>
+          <DialogTitle className="text-center text-2xl">{gaveUp ? "You Gave Up" : "Game Over"}</DialogTitle>
         </DialogHeader>
 
         {answer && (

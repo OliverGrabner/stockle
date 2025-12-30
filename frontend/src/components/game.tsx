@@ -6,6 +6,7 @@ import { StockSearch } from "@/components/stock-search"
 import { GuessRow, GuessHeader, EmptyRow } from "@/components/guess-row"
 import { WinDialog } from "@/components/win-dialog"
 import { LoseDialog } from "@/components/lose-dialog"
+import { GiveUpConfirmDialog } from "@/components/give-up-confirm-dialog"
 import { TutorialDialog } from "@/components/tutorial-dialog"
 import { HintDisplay } from "@/components/hint-display"
 import { PriceChart } from "@/components/price-chart"
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { stocks as staticStocks, Stock } from "@/data/stocks"
 import { GuessResult } from "@/types/game"
 import { loadStocksWithMetadata } from "@/lib/stock-service"
-import { Globe, Info } from "lucide-react"
+import { Globe, Info, Flag } from "lucide-react"
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -37,6 +38,8 @@ export function Game({
   const [showWinDialog, setShowWinDialog] = useState(false)
   const [showLoseDialog, setShowLoseDialog] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const [showGiveUpConfirm, setShowGiveUpConfirm] = useState(false)
+  const [gaveUp, setGaveUp] = useState(false)
   const [answer, setAnswer] = useState<{ ticker: string; name: string } | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [hints, setHints] = useState<{ sector?: string; industry?: string; ticker?: string }>({})
@@ -116,6 +119,22 @@ export function Game({
     }
   }
 
+  const handleGiveUp = async () => {
+    setShowGiveUpConfirm(false)
+    setGaveUp(true)
+
+    try {
+      const answerRes = await fetch('/api/puzzle/today/answer')
+      if (answerRes.ok) {
+        const answerData = await answerRes.json()
+        setAnswer(answerData)
+      }
+    } catch (e) {
+      console.error('Failed to fetch answer:', e)
+    }
+    setShowLoseDialog(true)
+  }
+
   return (
     <div className={cn("flex flex-col items-center gap-6", className)} {...props}>
       <header className="flex flex-col items-center gap-1 relative">
@@ -159,6 +178,18 @@ export function Game({
         )}
       </div>
 
+      {!gameOver && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={() => setShowGiveUpConfirm(true)}
+        >
+          <Flag className="h-4 w-4" />
+          Give Up
+        </Button>
+      )}
+
       <WinDialog
         open={showWinDialog}
         guesses={guesses}
@@ -169,7 +200,14 @@ export function Game({
         open={showLoseDialog}
         guesses={guesses}
         answer={answer}
+        gaveUp={gaveUp}
         onClose={() => setShowLoseDialog(false)}
+      />
+
+      <GiveUpConfirmDialog
+        open={showGiveUpConfirm}
+        onConfirm={handleGiveUp}
+        onCancel={() => setShowGiveUpConfirm(false)}
       />
 
       <TutorialDialog

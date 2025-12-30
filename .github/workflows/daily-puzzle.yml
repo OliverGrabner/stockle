@@ -1,4 +1,5 @@
-
+# ----------------- DEPRACATED -----------------  
+# ----------------- Using k8s/data-fetcher-cronjob.yaml running in server now-----------------  
 name: Set Daily Puzzle
 
 on:
