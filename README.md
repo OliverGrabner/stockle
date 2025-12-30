@@ -1,13 +1,16 @@
 # Stockle 📈
 
+![Stockle Game Screenshot](.github/stockle-game.png)
+
 Wordle but for stocks. I saw that there was none and wanted to play it so I made it. Players analyze a stock chart and information about a stock to try to guess what the stock is.
 
 ## Tech Stack
 
 **Backend**: Spring Boot 3.2 + Java
-**Database**: Supabase (PostgreSQL)
-**Data Pipeline**: Python, yfinance API, github actions
-**Frontend**: Next.js, React, TypeScript
+**Database**: PostgreSQL
+**Infrastructure**: Kubernetes, Docker, Nginx Ingress
+**Data Pipeline**: Python, yfinance API, Kubernetes CronJob
+**Frontend**: Next.js, React, TypeScript, Vercel
 
 
 ## How It Works

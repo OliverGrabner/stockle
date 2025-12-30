@@ -8,13 +8,14 @@ import { WinDialog } from "@/components/win-dialog"
 import { LoseDialog } from "@/components/lose-dialog"
 import { GiveUpConfirmDialog } from "@/components/give-up-confirm-dialog"
 import { TutorialDialog } from "@/components/tutorial-dialog"
+import { StatsDialog } from "@/components/stats-dialog"
 import { HintDisplay } from "@/components/hint-display"
 import { PriceChart } from "@/components/price-chart"
 import { Button } from "@/components/ui/button"
 import { stocks as staticStocks, Stock } from "@/data/stocks"
 import { GuessResult } from "@/types/game"
 import { loadStocksWithMetadata } from "@/lib/stock-service"
-import { Globe, Info, Flag } from "lucide-react"
+import { Globe, Info, Flag, BarChart3 } from "lucide-react"
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -38,6 +39,7 @@ export function Game({
   const [showWinDialog, setShowWinDialog] = useState(false)
   const [showLoseDialog, setShowLoseDialog] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
+  const [showStats, setShowStats] = useState(false)
   const [showGiveUpConfirm, setShowGiveUpConfirm] = useState(false)
   const [gaveUp, setGaveUp] = useState(false)
   const [answer, setAnswer] = useState<{ ticker: string; name: string } | null>(null)
@@ -145,15 +147,26 @@ export function Game({
       </header>
 
       <div className="relative w-full">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute -top-16 right-4 h-12 w-12 z-10"
-          onClick={() => setShowTutorial(true)}
-          aria-label="How to play"
-        >
-          <Info className="h-7 w-7" />
-        </Button>
+        <div className="flex gap-2 absolute -top-16 right-4 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-12 w-12"
+            onClick={() => setShowStats(true)}
+            aria-label="Statistics"
+          >
+            <BarChart3 className="h-7 w-7" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-12 w-12"
+            onClick={() => setShowTutorial(true)}
+            aria-label="How to play"
+          >
+            <Info className="h-7 w-7" />
+          </Button>
+        </div>
         <PriceChart className="px-4" />
       </div>
 
@@ -213,6 +226,11 @@ export function Game({
       <TutorialDialog
         open={showTutorial}
         onClose={() => setShowTutorial(false)}
+      />
+
+      <StatsDialog
+        open={showStats}
+        onClose={() => setShowStats(false)}
       />
 
       <footer className="mt-8 text-center text-xs text-muted-foreground">

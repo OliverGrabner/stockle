@@ -5,8 +5,17 @@ import { Button } from "@/components/ui/button"
 import { GuessResult } from "@/types/game"
 import { toast } from "sonner"
 import confetti from "canvas-confetti"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Copy } from "lucide-react"
+import { StatsDisplay } from "@/components/stats-dialog"
+
+interface StatsData {
+  distribution: number[]
+  totalPlays: number
+  average: number
+  yourResult?: number
+  percentile?: number
+}
 
 interface WinDialogProps {
   open: boolean
@@ -15,6 +24,41 @@ interface WinDialogProps {
 }
 
 export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
+  const [stats, setStats] = useState<StatsData | null>(null)
+  const [statsSubmitted, setStatsSubmitted] = useState(false)
+
+  useEffect(() => {
+    if (open && !statsSubmitted) {
+      const today = new Date().toISOString().split('T')[0]
+      const submittedKey = `stockle-stats-${today}`
+
+      if (localStorage.getItem(submittedKey)) {
+        fetch("/api/stats/today")
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) setStats({ ...data, yourResult: guesses.length })
+          })
+        setStatsSubmitted(true)
+        return
+      }
+
+      fetch("/api/stats/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guessCount: guesses.length, won: true })
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setStats(data)
+            localStorage.setItem(submittedKey, "true")
+          }
+        })
+        .catch(console.error)
+      setStatsSubmitted(true)
+    }
+  }, [open, guesses.length, statsSubmitted])
+
   useEffect(() => {
     if (open) {
       const end = Date.now() + 3 * 1000
@@ -78,6 +122,8 @@ export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
         <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre text-center">
           {generateShareText()}
         </div>
+
+        {stats && <StatsDisplay stats={stats} />}
 
         <Button onClick={handleCopy} className="w-full gap-2">
           <Copy className="h-4 w-4" />

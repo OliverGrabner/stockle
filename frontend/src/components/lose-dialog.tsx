@@ -6,6 +6,16 @@ import { GuessResult } from "@/types/game"
 import { toast } from "sonner"
 import { Copy } from "lucide-react"
 import { stocks } from "@/data/stocks"
+import { useEffect, useState } from "react"
+import { StatsDisplay } from "@/components/stats-dialog"
+
+interface StatsData {
+  distribution: number[]
+  totalPlays: number
+  average: number
+  yourResult?: number
+  percentile?: number
+}
 
 interface LoseDialogProps {
   open: boolean
@@ -17,6 +27,40 @@ interface LoseDialogProps {
 
 export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: LoseDialogProps) {
   const answerStock = answer ? stocks.find(s => s.ticker === answer.ticker) : null
+  const [stats, setStats] = useState<StatsData | null>(null)
+  const [statsSubmitted, setStatsSubmitted] = useState(false)
+
+  useEffect(() => {
+    if (open && !statsSubmitted) {
+      const today = new Date().toISOString().split('T')[0]
+      const submittedKey = `stockle-stats-${today}`
+
+      if (localStorage.getItem(submittedKey)) {
+        fetch("/api/stats/today")
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) setStats({ ...data, yourResult: 7 })
+          })
+        setStatsSubmitted(true)
+        return
+      }
+
+      fetch("/api/stats/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guessCount: guesses.length, won: false })
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setStats(data)
+            localStorage.setItem(submittedKey, "true")
+          }
+        })
+        .catch(console.error)
+      setStatsSubmitted(true)
+    }
+  }, [open, guesses.length, statsSubmitted])
 
   const generateShareText = () => {
     const rows = guesses.map(g => {
@@ -68,6 +112,8 @@ export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: L
         <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre text-center">
           {generateShareText()}
         </div>
+
+        {stats && <StatsDisplay stats={stats} />}
 
         <Button onClick={handleCopy} className="w-full gap-2">
           <Copy className="h-4 w-4" />

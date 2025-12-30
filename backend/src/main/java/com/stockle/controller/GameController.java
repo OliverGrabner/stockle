@@ -337,4 +337,81 @@ public class GameController {
         if (Double.isNaN(result) || Double.isInfinite(result)) return 0.0;
         return result;
     }
+
+    @PostMapping("/stats/submit")
+    public ResponseEntity<?> submitStats(@RequestBody Map<String, Object> request) {
+        Integer guessCount = (Integer) request.get("guessCount");
+        Boolean won = (Boolean) request.get("won");
+
+        if (guessCount == null || won == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "guessCount and won are required"));
+        }
+
+        LocalDate today = LocalDate.now();
+        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        if (puzzle == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Atomic increment
+        puzzles.incrementStats(today, index);
+
+        // Fetch updated stats
+        puzzle = puzzles.findById(today).orElse(null);
+        Integer[] distribution = puzzle.getDistribution();
+        int totalPlays = puzzle.getTotalPlays();
+
+        // Calculate average (exclude gave-ups)
+        int wins = 0;
+        int totalGuesses = 0;
+        for (int i = 0; i < 6; i++) {
+            wins += distribution[i];
+            totalGuesses += distribution[i] * (i + 1);
+        }
+        double average = wins > 0 ? (double) totalGuesses / wins : 0;
+
+        // Calculate percentile
+        int playersYouBeat = 0;
+        for (int i = index; i < 7; i++) {
+            playersYouBeat += distribution[i];
+        }
+        double percentile = totalPlays > 0 ? (100.0 * playersYouBeat) / totalPlays : 0;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("distribution", distribution);
+        response.put("totalPlays", totalPlays);
+        response.put("yourResult", index);
+        response.put("percentile", Math.round(percentile * 10) / 10.0);
+        response.put("average", Math.round(average * 100) / 100.0);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats/today")
+    public ResponseEntity<?> getTodayStats() {
+        LocalDate today = LocalDate.now();
+        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        if (puzzle == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Integer[] distribution = puzzle.getDistribution();
+        int totalPlays = puzzle.getTotalPlays();
+
+        // Calculate average (NOT INCLUDING GIVING UP )
+        int wins = 0;
+        int totalGuesses = 0;
+        for (int i = 0; i < 6; i++) {
+            wins += distribution[i];
+            totalGuesses += distribution[i] * (i + 1);
+        }
+        double average = wins > 0 ? (double) totalGuesses / wins : 0;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("distribution", distribution);
+        response.put("totalPlays", totalPlays);
+        response.put("average", Math.round(average * 100) / 100.0);
+
+        return ResponseEntity.ok(response);
+    }
 }

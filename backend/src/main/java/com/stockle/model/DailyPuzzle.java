@@ -1,6 +1,8 @@
 package com.stockle.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 
 @Entity
@@ -16,6 +18,13 @@ public class DailyPuzzle {
 
     @Column(name = "price_history", columnDefinition = "jsonb")
     private String priceHistory;
+
+    @Column(name = "distribution", columnDefinition = "integer[]")
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private Integer[] distribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
+
+    @Column(name = "total_plays")
+    private Integer totalPlays = 0;
 
     public DailyPuzzle() {}
 
@@ -41,5 +50,21 @@ public class DailyPuzzle {
 
     public void setPriceHistory(String priceHistory) {
         this.priceHistory = priceHistory;
+    }
+
+    public Integer[] getDistribution() {
+        return distribution;
+    }
+
+    public void setDistribution(Integer[] distribution) {
+        this.distribution = distribution;
+    }
+
+    public Integer getTotalPlays() {
+        return totalPlays;
+    }
+
+    public void setTotalPlays(Integer totalPlays) {
+        this.totalPlays = totalPlays;
     }
 }
