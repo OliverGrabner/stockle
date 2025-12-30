@@ -1,0 +1,39 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#121213"/>
+
+  <!-- Stock chart icon (scaled and positioned left) -->
+  <g transform="translate(120, 115) scale(0.78)">
+    <rect x="0" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="0" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="80" y="320" width="70" height="70" rx="4" fill="#787c7e"/>
+
+    <rect x="160" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="160" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="160" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="240" y="80" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="320" y="0" width="70" height="70" rx="4" fill="#c9b458"/>
+    <rect x="320" y="80" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+  </g>
+
+  <!-- Title text -->
+  <text x="600" y="250" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="bold" fill="white" text-anchor="left">STOCKLE</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="36" fill="#818384" text-anchor="left">Daily Stock Guessing Game</text>
+
+  <!-- Call to action -->
+  <text x="600" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#6aaa64" text-anchor="left">Can you guess the stock from the chart?</text>
+
+  <!-- URL -->
+  <text x="600" y="520" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#565758" text-anchor="left">stockle.fun</text>
+</svg>

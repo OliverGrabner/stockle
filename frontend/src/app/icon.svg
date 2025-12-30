@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="15%" ry="15%" fill="#121213"/>
+
+  <g transform="translate(56, 56)">
+
+    <rect x="0" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="0" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="80" y="320" width="70" height="70" rx="4" fill="#787c7e"/>
+
+    <rect x="160" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="160" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="160" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="240" y="80" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="240" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+    <rect x="320" y="0" width="70" height="70" rx="4" fill="#c9b458"/>
+    <rect x="320" y="80" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="160" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="240" width="70" height="70" rx="4" fill="#6aaa64"/>
+    <rect x="320" y="320" width="70" height="70" rx="4" fill="#6aaa64"/>
+
+  </g>
+</svg>

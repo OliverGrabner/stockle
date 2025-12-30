@@ -1,0 +1,16 @@
+{
+  "name": "Stockle",
+  "short_name": "Stockle",
+  "description": "Daily Stock Guessing Game - Can you guess the stock from the chart?",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121213",
+  "theme_color": "#121213",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
