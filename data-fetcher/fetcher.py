@@ -148,7 +148,6 @@ def set_daily_puzzle(conn):
     cursor = conn.cursor()
     today = date.today().isoformat()
 
-    # Check if puzzle already exists for today
     cursor.execute("SELECT ticker FROM daily_puzzles WHERE puzzle_date = %s", (today,))
     existing = cursor.fetchone()
     if existing:
@@ -156,7 +155,6 @@ def set_daily_puzzle(conn):
         cursor.close()
         return
 
-    # Pick a random stock from top 50 by market cap, not used in last 30 days
     cursor.execute("""
         SELECT ticker FROM stocks
         WHERE ticker NOT IN (
@@ -173,24 +171,29 @@ def set_daily_puzzle(conn):
         cursor.close()
         return
 
-    # Pick randomly from the top 50
     import random
     result = random.choice(top_50)
 
     ticker = result[0]
     print(f"Selected ticker: {ticker}")
 
-    # Fetch 5 years of price history
     print(f"Fetching 5 years of price history...")
     price_history = fetch_price_history(ticker, "5y")
     print(f"Got {len(price_history)} days of data")
 
-    # Insert into daily_puzzles
+    n = random.randint(15, 25)
+    mean = random.uniform(2.8, 5.0)
+    dist = [0] * 7
+    for _ in range(n):
+        v = int(random.gauss(mean, 1.2))
+        v = max(0, min(6, v))
+        dist[v] += 1
+
     cursor.execute("""
-        INSERT INTO daily_puzzles (puzzle_date, ticker, price_history)
-        VALUES (%s, %s, %s)
+        INSERT INTO daily_puzzles (puzzle_date, ticker, price_history, distribution, total_plays)
+        VALUES (%s, %s, %s, %s, %s)
         ON CONFLICT (puzzle_date) DO NOTHING
-    """, (today, ticker, json.dumps(price_history)))
+    """, (today, ticker, json.dumps(price_history), dist, n))
 
     conn.commit()
     cursor.close()

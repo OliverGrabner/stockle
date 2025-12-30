@@ -13,6 +13,8 @@ import java.time.LocalDate;
 @Repository
 public interface DailyPuzzleRepository extends JpaRepository<DailyPuzzle, LocalDate> {
 
+    DailyPuzzle findTopByOrderByPuzzleDateDesc();
+
     @Modifying
     @Transactional
     @Query(value = """

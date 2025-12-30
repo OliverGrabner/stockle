@@ -81,8 +81,7 @@ public class GameController {
 
     @GetMapping("/puzzle/today/answer")
     public ResponseEntity<?> getAnswer() {
-        LocalDate today = LocalDate.now();
-        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (puzzle == null) return ResponseEntity.notFound().build();
 
         Stock stock = stockRepo.findById(puzzle.getTicker()).orElse(null);
@@ -96,8 +95,7 @@ public class GameController {
 
     @GetMapping("/puzzle/today/hint")
     public ResponseEntity<?> getHint(@RequestParam int level) {
-        LocalDate today = LocalDate.now();
-        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (puzzle == null) return ResponseEntity.notFound().build();
 
         Stock stock = stockRepo.findById(puzzle.getTicker()).orElse(null);
@@ -115,8 +113,7 @@ public class GameController {
 
     @GetMapping("/puzzle/today/chart")
     public ResponseEntity<?> getChartData() {
-        LocalDate today = LocalDate.now();
-        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (puzzle == null) return ResponseEntity.notFound().build();
 
         List<Map<String, Object>> priceHistory;
@@ -155,8 +152,7 @@ public class GameController {
 
     @GetMapping("/puzzle/today")
     public ResponseEntity<?> getTodayPuzzle() {
-        LocalDate today = LocalDate.now();
-        DailyPuzzle dailyPuzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle dailyPuzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (dailyPuzzle == null) return ResponseEntity.notFound().build();
 
         List<Map<String, Object>> priceHistory;
@@ -175,7 +171,7 @@ public class GameController {
                 .body(Map.of("error", "No price history available"));
         }
 
-        return ResponseEntity.ok(Map.of("puzzleDate", today.toString(), "priceHistory", priceHistory));
+        return ResponseEntity.ok(Map.of("puzzleDate", dailyPuzzle.getPuzzleDate().toString(), "priceHistory", priceHistory));
     }
 
     @PostMapping("/guess")
@@ -185,10 +181,9 @@ public class GameController {
             return ResponseEntity.badRequest().body(Map.of("error", "ticker is required"));
         }
 
-        LocalDate today = LocalDate.now();
-        DailyPuzzle dailyPuzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle dailyPuzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (dailyPuzzle == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "no puzzle loaded for today"));
+            return ResponseEntity.badRequest().body(Map.of("error", "no puzzle loaded"));
         }
 
         Stock target = stockRepo.findById(dailyPuzzle.getTicker()).orElse(null);
@@ -347,17 +342,16 @@ public class GameController {
             return ResponseEntity.badRequest().body(Map.of("error", "guessCount and won are required"));
         }
 
-        LocalDate today = LocalDate.now();
-        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        int index = won ? guessCount - 1 : 6;
+
+        DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (puzzle == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Atomic increment
-        puzzles.incrementStats(today, index);
+        puzzles.incrementStats(puzzle.getPuzzleDate(), index);
 
-        // Fetch updated stats
-        puzzle = puzzles.findById(today).orElse(null);
+        puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         Integer[] distribution = puzzle.getDistribution();
         int totalPlays = puzzle.getTotalPlays();
 
@@ -389,8 +383,7 @@ public class GameController {
 
     @GetMapping("/stats/today")
     public ResponseEntity<?> getTodayStats() {
-        LocalDate today = LocalDate.now();
-        DailyPuzzle puzzle = puzzles.findById(today).orElse(null);
+        DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         if (puzzle == null) {
             return ResponseEntity.notFound().build();
         }
