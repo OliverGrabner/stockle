@@ -86,8 +86,9 @@ export function PriceChart({ className }: { className?: string }) {
   useEffect(() => {
     if (!containerRef.current) return
 
+    const isMobile = window.innerWidth < 768
     const chart = createChart(containerRef.current, {
-      height: 400,
+      height: isMobile ? 250 : 400,
       layout: {
         textColor: "#888",
         background: { type: ColorType.Solid, color: "transparent" },
@@ -122,7 +123,11 @@ export function PriceChart({ className }: { className?: string }) {
 
     const handleResize = () => {
       if (containerRef.current) {
-        chart.applyOptions({ width: containerRef.current.clientWidth })
+        const isMobile = window.innerWidth < 768
+        chart.applyOptions({
+          width: containerRef.current.clientWidth,
+          height: isMobile ? 250 : 400
+        })
       }
     }
     window.addEventListener("resize", handleResize)
@@ -164,15 +169,15 @@ export function PriceChart({ className }: { className?: string }) {
 
   return (
     <div className={cn("w-full max-w-4xl", className)}>
-      <div className="flex items-center justify-center gap-4 mb-3">
-        <div className="flex gap-2">
+      <div className="flex items-center justify-center gap-2 md:gap-4 mb-2 md:mb-3">
+        <div className="flex gap-1 md:gap-2">
           {RANGES.map((r) => (
             <Button
               key={r}
               variant={range === r ? "default" : "outline"}
               size="sm"
               onClick={() => setRange(r)}
-              className="min-w-[48px]"
+              className="min-w-[40px] md:min-w-[48px] text-xs md:text-sm px-2 md:px-3"
             >
               {r}
             </Button>
@@ -181,7 +186,7 @@ export function PriceChart({ className }: { className?: string }) {
         {filteredData.length > 0 && (
           <span
             className={cn(
-              "text-lg font-semibold",
+              "text-base md:text-lg font-semibold",
               isPositive ? "text-emerald-500" : "text-red-500"
             )}
           >

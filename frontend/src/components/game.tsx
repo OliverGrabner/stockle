@@ -228,11 +228,6 @@ export function Game({
         onClose={() => setShowTutorial(false)}
       />
 
-      <StatsDialog
-        open={showStats}
-        onClose={() => setShowStats(false)}
-      />
-
       <footer className="mt-8 text-center text-xs text-muted-foreground">
         <div className="flex items-center justify-center gap-4">
           <a
@@ -246,13 +241,13 @@ export function Game({
           </a>
           <span>•</span>
           <a
-            href="https://olivergrabner.com"
+            href="https://olivergrabner.com/projects"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 hover:text-foreground transition-colors"
           >
             <Globe className="h-3.5 w-3.5" />
-            Oliver G
+            Portfolio
           </a>
         </div>
       </footer>
