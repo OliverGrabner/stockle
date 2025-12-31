@@ -147,24 +147,24 @@ export function Game({
       </header>
 
       <div className="relative w-full">
-        <div className="flex gap-2 absolute -top-16 right-4 z-10">
+        <div className="flex gap-1 md:gap-2 absolute -top-10 md:-top-16 right-2 md:right-4 z-20">
           <Button
             variant="ghost"
             size="icon"
-            className="h-12 w-12"
+            className="h-9 w-9 md:h-12 md:w-12"
             onClick={() => setShowStats(true)}
             aria-label="Statistics"
           >
-            <BarChart3 className="h-7 w-7" />
+            <BarChart3 className="h-5 w-5 md:h-7 md:w-7" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-12 w-12"
+            className="h-9 w-9 md:h-12 md:w-12"
             onClick={() => setShowTutorial(true)}
             aria-label="How to play"
           >
-            <Info className="h-7 w-7" />
+            <Info className="h-5 w-5 md:h-7 md:w-7" />
           </Button>
         </div>
         <PriceChart className="px-4" />
