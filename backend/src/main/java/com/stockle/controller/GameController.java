@@ -353,21 +353,24 @@ public class GameController {
 
         puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
         Integer[] distribution = puzzle.getDistribution();
-        int totalPlays = puzzle.getTotalPlays();
+        if (distribution == null) {
+            distribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
+        }
+        int totalPlays = puzzle.getTotalPlays() != null ? puzzle.getTotalPlays() : 0;
 
         // Calculate average (exclude gave-ups)
         int wins = 0;
         int totalGuesses = 0;
         for (int i = 0; i < 6; i++) {
-            wins += distribution[i];
-            totalGuesses += distribution[i] * (i + 1);
+            wins += distribution[i] != null ? distribution[i] : 0;
+            totalGuesses += (distribution[i] != null ? distribution[i] : 0) * (i + 1);
         }
         double average = wins > 0 ? (double) totalGuesses / wins : 0;
 
         // Calculate percentile
         int playersYouBeat = 0;
         for (int i = index; i < 7; i++) {
-            playersYouBeat += distribution[i];
+            playersYouBeat += distribution[i] != null ? distribution[i] : 0;
         }
         double percentile = totalPlays > 0 ? (100.0 * playersYouBeat) / totalPlays : 0;
 
@@ -389,14 +392,17 @@ public class GameController {
         }
 
         Integer[] distribution = puzzle.getDistribution();
-        int totalPlays = puzzle.getTotalPlays();
+        if (distribution == null) {
+            distribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
+        }
+        int totalPlays = puzzle.getTotalPlays() != null ? puzzle.getTotalPlays() : 0;
 
         // Calculate average (NOT INCLUDING GIVING UP )
         int wins = 0;
         int totalGuesses = 0;
         for (int i = 0; i < 6; i++) {
-            wins += distribution[i];
-            totalGuesses += distribution[i] * (i + 1);
+            wins += distribution[i] != null ? distribution[i] : 0;
+            totalGuesses += (distribution[i] != null ? distribution[i] : 0) * (i + 1);
         }
         double average = wins > 0 ? (double) totalGuesses / wins : 0;
 
