@@ -22,10 +22,11 @@ interface LoseDialogProps {
   guesses: { result: GuessResult }[]
   answer: { ticker: string; name: string } | null
   gaveUp?: boolean
+  hintsUsed?: number
   onClose: () => void
 }
 
-export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: LoseDialogProps) {
+export function LoseDialog({ open, guesses, answer, gaveUp = false, hintsUsed = 0, onClose }: LoseDialogProps) {
   const answerStock = answer ? stocks.find(s => s.ticker === answer.ticker) : null
   const [stats, setStats] = useState<StatsData | null>(null)
   const [statsSubmitted, setStatsSubmitted] = useState(false)
@@ -39,7 +40,7 @@ export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: L
         fetch("/api/stats/today")
           .then(res => res.ok ? res.json() : null)
           .then(data => {
-            if (data) setStats({ ...data, yourResult: 7 })
+            if (data) setStats({ ...data, yourResult: 6 })
           })
         setStatsSubmitted(true)
         return
@@ -74,8 +75,9 @@ export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: L
         .join("")
     }).join("\n")
 
-    const suffix = gaveUp ? " (gave up)" : ""
-    return `STOCKLE X/6${suffix}\n\n${rows}`
+    const hintSuffix = hintsUsed > 0 ? ` 💡${hintsUsed}` : ""
+    const gaveUpSuffix = gaveUp ? " (gave up)" : ""
+    return `STOCKLE X/6${hintSuffix}${gaveUpSuffix}\n\n${rows}\n\nstockle.fun`
   }
 
   const handleCopy = async () => {
@@ -109,11 +111,11 @@ export function LoseDialog({ open, guesses, answer, gaveUp = false, onClose }: L
           </div>
         )}
 
+        {stats && <StatsDisplay stats={stats} />}
+
         <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre text-center">
           {generateShareText()}
         </div>
-
-        {stats && <StatsDisplay stats={stats} />}
 
         <Button onClick={handleCopy} className="w-full gap-2">
           <Copy className="h-4 w-4" />

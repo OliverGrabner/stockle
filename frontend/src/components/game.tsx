@@ -139,15 +139,8 @@ export function Game({
 
   return (
     <div className={cn("flex flex-col items-center gap-6", className)} {...props}>
-      <header className="flex flex-col items-center gap-1 relative">
-        <h1 className="text-4xl font-serif tracking-tight">STOCKLE</h1>
-        <p className="text-muted-foreground text-sm tracking-wide uppercase">
-          Daily Stock Challenge
-        </p>
-      </header>
-
-      <div className="relative w-full">
-        <div className="flex gap-1 md:gap-2 absolute -top-10 md:-top-16 right-2 md:right-4 z-20">
+      <header className="flex flex-col items-center gap-1 relative w-full">
+        <div className="absolute top-0 right-2 md:right-4 flex gap-1 md:gap-2">
           <Button
             variant="ghost"
             size="icon"
@@ -167,6 +160,13 @@ export function Game({
             <Info className="h-5 w-5 md:h-7 md:w-7" />
           </Button>
         </div>
+        <h1 className="text-4xl font-serif tracking-tight">STOCKLE</h1>
+        <p className="text-muted-foreground text-sm tracking-wide uppercase">
+          Daily Stock Challenge
+        </p>
+      </header>
+
+      <div className="relative w-full">
         <PriceChart className="px-4" />
       </div>
 
@@ -206,6 +206,7 @@ export function Game({
       <WinDialog
         open={showWinDialog}
         guesses={guesses}
+        hintsUsed={hintLevel}
         onClose={() => setShowWinDialog(false)}
       />
 
@@ -214,6 +215,7 @@ export function Game({
         guesses={guesses}
         answer={answer}
         gaveUp={gaveUp}
+        hintsUsed={hintLevel}
         onClose={() => setShowLoseDialog(false)}
       />
 
@@ -226,6 +228,11 @@ export function Game({
       <TutorialDialog
         open={showTutorial}
         onClose={() => setShowTutorial(false)}
+      />
+
+      <StatsDialog
+        open={showStats}
+        onClose={() => setShowStats(false)}
       />
 
       <footer className="mt-8 text-center text-xs text-muted-foreground">

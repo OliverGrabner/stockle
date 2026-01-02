@@ -4,7 +4,9 @@ metadata:
   name: data-fetcher
   namespace: stockle
 spec:
-  schedule: "0 8 * * *"
+  schedule: "0 0 * * *"
+  timeZone: "America/Chicago"
+  startingDeadlineSeconds: 3600
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -16,7 +18,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: fetcher
-              image: localhost:32000/stockle-data-fetcher:2025-12-28-a
+              image: localhost:32000/stockle-data-fetcher:2026-1-1-a
               imagePullPolicy: IfNotPresent
               env:
                 - name: DB_HOST

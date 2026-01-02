@@ -20,10 +20,11 @@ interface StatsData {
 interface WinDialogProps {
   open: boolean
   guesses: { result: GuessResult }[]
+  hintsUsed?: number
   onClose: () => void
 }
 
-export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
+export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogProps) {
   const [stats, setStats] = useState<StatsData | null>(null)
   const [statsSubmitted, setStatsSubmitted] = useState(false)
 
@@ -36,7 +37,7 @@ export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
         fetch("/api/stats/today")
           .then(res => res.ok ? res.json() : null)
           .then(data => {
-            if (data) setStats({ ...data, yourResult: guesses.length })
+            if (data) setStats({ ...data, yourResult: guesses.length - 1 })
           })
         setStatsSubmitted(true)
         return
@@ -101,7 +102,8 @@ export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
         .join("")
     }).join("\n")
 
-    return `STOCKLE ${guesses.length}/6\n\n${rows}`
+    const hintSuffix = hintsUsed > 0 ? ` 💡${hintsUsed}` : ""
+    return `STOCKLE ${guesses.length}/6${hintSuffix}\n\n${rows}\n\nstockle.fun`
   }
 
   const handleCopy = async () => {
@@ -119,11 +121,11 @@ export function WinDialog({ open, guesses, onClose }: WinDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {stats && <StatsDisplay stats={stats} />}
+
         <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre text-center">
           {generateShareText()}
         </div>
-
-        {stats && <StatsDisplay stats={stats} />}
 
         <Button onClick={handleCopy} className="w-full gap-2">
           <Copy className="h-4 w-4" />

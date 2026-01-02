@@ -64,17 +64,18 @@ interface StatsDisplayProps {
 }
 
 export function StatsDisplay({ stats, className }: StatsDisplayProps) {
-  const { distribution, totalPlays, average, yourResult, percentile } = stats
-  const maxCount = Math.max(...distribution, 1)
+  const { distribution, totalPlays, yourResult, percentile } = stats
+  const displayDist = distribution.slice(0, 7)
+  const maxCount = Math.max(...displayDist, 1)
   const labels = ["1", "2", "3", "4", "5", "6", "X"]
 
   return (
     <div className={cn("space-y-4", className)}>
+      <h3 className="text-center font-semibold text-lg">Global Leaderboard</h3>
       <div className="space-y-2">
-        {distribution.map((count, i) => {
-          const percentage = totalPlays > 0 ? Math.round((count / totalPlays) * 100) : 0
+        {displayDist.map((count, i) => {
           const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0
-          const isYourResult = yourResult === i + 1
+          const isYourResult = yourResult === i
 
           return (
             <div key={i} className="flex items-center gap-2">
@@ -102,9 +103,6 @@ export function StatsDisplay({ stats, className }: StatsDisplayProps) {
                   )}
                 </div>
               </div>
-              <span className="w-10 text-xs text-muted-foreground text-right">
-                {percentage}%
-              </span>
               {isYourResult && (
                 <span className="text-xs text-primary font-medium">You</span>
               )}
@@ -113,17 +111,11 @@ export function StatsDisplay({ stats, className }: StatsDisplayProps) {
         })}
       </div>
 
-      <div className="pt-2 border-t text-center space-y-1">
-        <p className="text-sm text-muted-foreground">
-          {totalPlays} {totalPlays === 1 ? "player" : "players"} today
-          {average > 0 && ` • Avg: ${average.toFixed(1)} guesses`}
+      {percentile !== undefined && percentile > 0 && (
+        <p className="text-center text-sm font-medium text-primary">
+          You beat {percentile.toFixed(0)}% of players!
         </p>
-        {percentile !== undefined && percentile > 0 && (
-          <p className="text-sm font-medium text-primary">
-            You beat {percentile.toFixed(0)}% of players!
-          </p>
-        )}
-      </div>
+      )}
     </div>
   )
 }

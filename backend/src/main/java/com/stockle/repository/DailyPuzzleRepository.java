@@ -19,7 +19,7 @@ public interface DailyPuzzleRepository extends JpaRepository<DailyPuzzle, LocalD
     @Transactional
     @Query(value = """
         UPDATE daily_puzzles
-        SET distribution[:index] = distribution[:index] + 1,
+        SET distribution[:index + 1] = distribution[:index + 1] + 1,
             total_plays = total_plays + 1
         WHERE puzzle_date = :date
         """, nativeQuery = true)
