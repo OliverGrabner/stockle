@@ -42,15 +42,15 @@ public class GameController {
         List<Stock> allStocks = stockRepo.findAll();
 
         List<Map<String, Object>> stockMetadata = allStocks.stream()
-            .map(stock -> {
-                Map<String, Object> data = new HashMap<>();
-                data.put("ticker", stock.getTicker());
-                data.put("name", stock.getCompanyName());
-                data.put("sector", stock.getSector());
-                data.put("industry", stock.getIndustry());
-                return data;
-            })
-            .collect(Collectors.toList());
+                .map(stock -> {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("ticker", stock.getTicker());
+                    data.put("name", stock.getCompanyName());
+                    data.put("sector", stock.getSector());
+                    data.put("industry", stock.getIndustry());
+                    return data;
+                })
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of("stocks", stockMetadata));
     }
@@ -60,22 +60,22 @@ public class GameController {
         List<Stock> allStocks = stockRepo.findAll();
 
         List<String> sectors = allStocks.stream()
-            .map(Stock::getSector)
-            .filter(s -> s != null && !s.isBlank())
-            .distinct()
-            .sorted()
-            .collect(Collectors.toList());
+                .map(Stock::getSector)
+                .filter(s -> s != null && !s.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
 
         List<String> industries = allStocks.stream()
-            .map(Stock::getIndustry)
-            .filter(i -> i != null && !i.isBlank())
-            .distinct()
-            .sorted()
-            .collect(Collectors.toList());
+                .map(Stock::getIndustry)
+                .filter(i -> i != null && !i.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of(
-            "sectors", sectors,
-            "industries", industries
+                "sectors", sectors,
+                "industries", industries
         ));
     }
 
@@ -88,8 +88,8 @@ public class GameController {
         if (stock == null) return ResponseEntity.internalServerError().body(Map.of("error", "puzzle stock not found"));
 
         return ResponseEntity.ok(Map.of(
-            "ticker", stock.getTicker(),
-            "name", stock.getCompanyName()
+                "ticker", stock.getTicker(),
+                "name", stock.getCompanyName()
         ));
     }
 
@@ -119,25 +119,25 @@ public class GameController {
         List<Map<String, Object>> priceHistory;
         try {
             priceHistory = objectMapper.readValue(
-                puzzle.getPriceHistory(),
-                new TypeReference<List<Map<String, Object>>>() {}
+                    puzzle.getPriceHistory(),
+                    new TypeReference<List<Map<String, Object>>>() {}
             );
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                .body(Map.of("error", "Failed to parse price history"));
+                    .body(Map.of("error", "Failed to parse price history"));
         }
 
         if (priceHistory.isEmpty()) {
             return ResponseEntity.internalServerError()
-                .body(Map.of("error", "No price history available"));
+                    .body(Map.of("error", "No price history available"));
         }
 
         List<Map<String, Object>> chartData = priceHistory.stream()
-            .map(point -> Map.of(
-                "time", point.get("date"),
-                "value", getClosePrice(point)
-            ))
-            .collect(Collectors.toList());
+                .map(point -> Map.of(
+                        "time", point.get("date"),
+                        "value", getClosePrice(point)
+                ))
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(Map.of("data", chartData));
     }
@@ -158,17 +158,17 @@ public class GameController {
         List<Map<String, Object>> priceHistory;
         try {
             priceHistory = objectMapper.readValue(
-                dailyPuzzle.getPriceHistory(),
-                new TypeReference<List<Map<String, Object>>>() {}
+                    dailyPuzzle.getPriceHistory(),
+                    new TypeReference<List<Map<String, Object>>>() {}
             );
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                .body(Map.of("error", "Failed to parse price history"));
+                    .body(Map.of("error", "Failed to parse price history"));
         }
 
         if (priceHistory.isEmpty()) {
             return ResponseEntity.internalServerError()
-                .body(Map.of("error", "No price history available"));
+                    .body(Map.of("error", "No price history available"));
         }
 
         return ResponseEntity.ok(Map.of("puzzleDate", dailyPuzzle.getPuzzleDate().toString(), "priceHistory", priceHistory));
@@ -194,8 +194,8 @@ public class GameController {
         Stock guess = stockRepo.findById(ticker.toUpperCase()).orElse(null);
         if (guess == null) {
             return ResponseEntity.badRequest().body(Map.of(
-                "error", "Stock not found",
-                "ticker", ticker.toUpperCase()
+                    "error", "Stock not found",
+                    "ticker", ticker.toUpperCase()
             ));
         }
 
@@ -203,13 +203,13 @@ public class GameController {
         Map<String, Object> comparisons = new HashMap<>();
 
         comparisons.put("sector", Map.of(
-            "value", guess.getSector() != null ? guess.getSector() : "Unknown",
-            "status", compareStrings(guess.getSector(), target.getSector())
+                "value", guess.getSector() != null ? guess.getSector() : "Unknown",
+                "status", compareStrings(guess.getSector(), target.getSector())
         ));
 
         comparisons.put("industry", Map.of(
-            "value", guess.getIndustry() != null ? guess.getIndustry() : "Unknown",
-            "status", compareStrings(guess.getIndustry(), target.getIndustry())
+                "value", guess.getIndustry() != null ? guess.getIndustry() : "Unknown",
+                "status", compareStrings(guess.getIndustry(), target.getIndustry())
         ));
 
         Long guessCap = guess.getMarketCap() != null ? guess.getMarketCap() : 0L;
@@ -342,6 +342,10 @@ public class GameController {
             return ResponseEntity.badRequest().body(Map.of("error", "guessCount and won are required"));
         }
 
+        if (guessCount < 1 || guessCount > 6) {
+            return ResponseEntity.badRequest().body(Map.of("error", "guessCount must be between 1 and 6"));
+        }
+
         int index = won ? guessCount - 1 : 6;
 
         DailyPuzzle puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
@@ -349,33 +353,47 @@ public class GameController {
             return ResponseEntity.notFound().build();
         }
 
-        puzzles.incrementStats(puzzle.getPuzzleDate(), index);
-
-        puzzle = puzzles.findTopByOrderByPuzzleDateDesc();
-        Integer[] distribution = puzzle.getDistribution();
-        if (distribution == null) {
-            distribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
+        // Update distribution directly in Java
+        // CRITICAL: Create a NEW array instead of modifying existing one
+        // Hibernate doesn't detect changes to array elements, only reference changes
+        Integer[] oldDistribution = puzzle.getDistribution();
+        if (oldDistribution == null) {
+            oldDistribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
         }
-        int totalPlays = puzzle.getTotalPlays() != null ? puzzle.getTotalPlays() : 0;
+
+        // Create a copy of the array to trigger Hibernate dirty checking
+        Integer[] newDistribution = new Integer[7];
+        for (int i = 0; i < 7; i++) {
+            newDistribution[i] = oldDistribution[i] != null ? oldDistribution[i] : 0;
+        }
+        newDistribution[index] = newDistribution[index] + 1;
+
+        puzzle.setDistribution(newDistribution);
+        puzzle.setTotalPlays((puzzle.getTotalPlays() != null ? puzzle.getTotalPlays() : 0) + 1);
+        puzzles.save(puzzle);
+
+        int totalPlays = puzzle.getTotalPlays();
 
         // Calculate average (exclude gave-ups)
         int wins = 0;
         int totalGuesses = 0;
         for (int i = 0; i < 6; i++) {
-            wins += distribution[i] != null ? distribution[i] : 0;
-            totalGuesses += (distribution[i] != null ? distribution[i] : 0) * (i + 1);
+            int count = newDistribution[i] != null ? newDistribution[i] : 0;
+            wins += count;
+            totalGuesses += count * (i + 1);
         }
         double average = wins > 0 ? (double) totalGuesses / wins : 0;
 
         // Calculate percentile
         int playersYouBeat = 0;
         for (int i = index; i < 7; i++) {
-            playersYouBeat += distribution[i] != null ? distribution[i] : 0;
+            int count = newDistribution[i] != null ? newDistribution[i] : 0;
+            playersYouBeat += count;
         }
         double percentile = totalPlays > 0 ? (100.0 * playersYouBeat) / totalPlays : 0;
 
         Map<String, Object> response = new HashMap<>();
-        response.put("distribution", distribution);
+        response.put("distribution", newDistribution);
         response.put("totalPlays", totalPlays);
         response.put("yourResult", index);
         response.put("percentile", Math.round(percentile * 10) / 10.0);
@@ -392,17 +410,15 @@ public class GameController {
         }
 
         Integer[] distribution = puzzle.getDistribution();
-        if (distribution == null) {
-            distribution = new Integer[]{0, 0, 0, 0, 0, 0, 0};
-        }
-        int totalPlays = puzzle.getTotalPlays() != null ? puzzle.getTotalPlays() : 0;
+        int totalPlays = puzzle.getTotalPlays();
 
         // Calculate average (NOT INCLUDING GIVING UP )
         int wins = 0;
         int totalGuesses = 0;
         for (int i = 0; i < 6; i++) {
-            wins += distribution[i] != null ? distribution[i] : 0;
-            totalGuesses += (distribution[i] != null ? distribution[i] : 0) * (i + 1);
+            int count = distribution[i] != null ? distribution[i] : 0;
+            wins += count;
+            totalGuesses += count * (i + 1);
         }
         double average = wins > 0 ? (double) totalGuesses / wins : 0;
 

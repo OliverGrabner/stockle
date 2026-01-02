@@ -16,7 +16,7 @@ public class DailyPuzzle {
     @Column(nullable = false, length = 10)
     private String ticker;
 
-    @Column(name = "price_history", columnDefinition = "jsonb")
+    @Column(name = "price_history", columnDefinition = "jsonb", insertable = false, updatable = false)
     private String priceHistory;
 
     @Column(name = "distribution", columnDefinition = "integer[]")
@@ -29,42 +29,42 @@ public class DailyPuzzle {
     public DailyPuzzle() {}
 
     public LocalDate getPuzzleDate() {
-        return puzzleDate;
+    return puzzleDate;
     }
 
     public void setPuzzleDate(LocalDate puzzleDate) {
-        this.puzzleDate = puzzleDate;
+    this.puzzleDate = puzzleDate;
     }
 
     public String getTicker() {
-        return ticker;
+    return ticker;
     }
 
     public void setTicker(String ticker) {
-        this.ticker = ticker;
+    this.ticker = ticker;
     }
 
     public String getPriceHistory() {
-        return priceHistory;
+    return priceHistory;
     }
 
     public void setPriceHistory(String priceHistory) {
-        this.priceHistory = priceHistory;
+    this.priceHistory = priceHistory;
     }
 
     public Integer[] getDistribution() {
-        return distribution;
+    return distribution;
     }
 
     public void setDistribution(Integer[] distribution) {
-        this.distribution = distribution;
+    this.distribution = distribution;
     }
 
     public Integer getTotalPlays() {
-        return totalPlays;
+    return totalPlays;
     }
 
     public void setTotalPlays(Integer totalPlays) {
-        this.totalPlays = totalPlays;
+    this.totalPlays = totalPlays;
     }
 }

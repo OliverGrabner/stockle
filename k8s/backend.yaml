@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: localhost:32000/stockle-backend:2026-1-2-a
+          image: localhost:32000/stockle-backend:2026-1-2-i
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
