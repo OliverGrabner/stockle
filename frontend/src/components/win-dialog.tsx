@@ -33,14 +33,29 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
       const today = new Date().toISOString().split('T')[0]
       const submittedKey = `stockle-stats-${today}`
 
-      if (localStorage.getItem(submittedKey)) {
-        fetch("/api/stats/today")
-          .then(res => res.ok ? res.json() : null)
-          .then(data => {
-            if (data) setStats({ ...data, yourResult: guesses.length - 1 })
-          })
-        setStatsSubmitted(true)
-        return
+      const savedResult = localStorage.getItem(submittedKey)
+      if (savedResult) {
+        // Migrate old format (just "true") to new format
+        try {
+          const parsed = JSON.parse(savedResult)
+          if (parsed.yourResult !== undefined) {
+            // New format - user already submitted, fetch latest stats
+            fetch("/api/stats/today")
+              .then(res => res.ok ? res.json() : null)
+              .then(data => {
+                if (data) {
+                  const { yourResult, percentile } = parsed
+                  setStats({ ...data, yourResult, percentile })
+                }
+              })
+            setStatsSubmitted(true)
+            return
+          }
+        } catch (e) {
+          // Old format or corrupted - clear it and resubmit
+          console.log("Clearing old localStorage format")
+          localStorage.removeItem(submittedKey)
+        }
       }
 
       fetch("/api/stats/submit", {
@@ -52,7 +67,11 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
         .then(data => {
           if (data) {
             setStats(data)
-            localStorage.setItem(submittedKey, "true")
+            // Store yourResult and percentile for later retrieval
+            localStorage.setItem(submittedKey, JSON.stringify({
+              yourResult: data.yourResult,
+              percentile: data.percentile
+            }))
           }
         })
         .catch(console.error)
