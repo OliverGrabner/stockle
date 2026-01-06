@@ -88,6 +88,7 @@ const c = g.result.comparisons
 return [c.sector, c.industry, c.marketCap, c.price, c.peRatio, c.dividendYield]
 .map(comp => {
 if (comp.status === "correct") return "🟩"
+if (comp.closeness !== undefined && comp.closeness >= 0.9) return "🟩"
 if (comp.status === "higher" || comp.status === "lower") return "🟨"
 return "⬛"
 })

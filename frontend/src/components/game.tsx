@@ -30,6 +30,45 @@ interface GuessWithLogo {
   logo: string
 }
 
+interface SavedGameState {
+  date: string
+  guesses: GuessWithLogo[]
+  gaveUp: boolean
+  answer: { ticker: string; name: string } | null
+  hintLevel: number
+  hints: { sector?: string; industry?: string; ticker?: string }
+}
+
+const GAME_STORAGE_KEY = 'stockle-game-state'
+
+function getTodayString(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
+function saveGameState(state: Omit<SavedGameState, 'date'>) {
+  const savedState: SavedGameState = {
+    date: getTodayString(),
+    ...state
+  }
+  localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify(savedState))
+}
+
+function loadGameState(): SavedGameState | null {
+  try {
+    const saved = localStorage.getItem(GAME_STORAGE_KEY)
+    if (!saved) return null
+
+    const state: SavedGameState = JSON.parse(saved)
+    if (state.date !== getTodayString()) {
+      localStorage.removeItem(GAME_STORAGE_KEY)
+      return null
+    }
+    return state
+  } catch {
+    return null
+  }
+}
+
 export function Game({
   className,
   ...props
@@ -46,11 +85,42 @@ export function Game({
   const [hintLevel, setHintLevel] = useState(0)
   const [hints, setHints] = useState<{ sector?: string; industry?: string; ticker?: string }>({})
   const [stocks, setStocks] = useState<Stock[]>(staticStocks)
+  const [gameLoaded, setGameLoaded] = useState(false)
 
   const MAX_GUESSES = 6
   const hasWon = guesses.some(g => g.result.correct)
-  const hasLost = guesses.length >= MAX_GUESSES && !hasWon
+  const hasLost = (guesses.length >= MAX_GUESSES && !hasWon) || gaveUp
   const gameOver = hasWon || hasLost
+
+  // Load saved game state on mount
+  useEffect(() => {
+    const saved = loadGameState()
+    if (saved) {
+      setGuesses(saved.guesses)
+      setGaveUp(saved.gaveUp)
+      setAnswer(saved.answer)
+      setHintLevel(saved.hintLevel)
+      setHints(saved.hints)
+
+      // Show appropriate dialog if game was over
+      const wasWon = saved.guesses.some(g => g.result.correct)
+      const wasLost = (saved.guesses.length >= MAX_GUESSES && !wasWon) || saved.gaveUp
+
+      if (wasWon) {
+        setTimeout(() => setShowWinDialog(true), 500)
+      } else if (wasLost) {
+        setTimeout(() => setShowLoseDialog(true), 500)
+      }
+    }
+    setGameLoaded(true)
+  }, [])
+
+  // Save game state whenever it changes
+  useEffect(() => {
+    if (gameLoaded) {
+      saveGameState({ guesses, gaveUp, answer, hintLevel, hints })
+    }
+  }, [guesses, gaveUp, answer, hintLevel, hints, gameLoaded])
 
   useEffect(() => {
     loadStocksWithMetadata().then(setStocks)
