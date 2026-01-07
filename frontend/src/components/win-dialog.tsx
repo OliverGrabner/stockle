@@ -30,7 +30,8 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
 
   useEffect(() => {
     if (open && !statsSubmitted) {
-      const today = new Date().toISOString().split('T')[0]
+      const now = new Date()
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
       const submittedKey = `stockle-stats-${today}`
 
       const savedResult = localStorage.getItem(submittedKey)

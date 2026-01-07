@@ -42,7 +42,12 @@ interface SavedGameState {
 const GAME_STORAGE_KEY = 'stockle-game-state'
 
 function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
+  // Use local time, not UTC, so localStorage resets at user's local midnight
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function saveGameState(state: Omit<SavedGameState, 'date'>) {

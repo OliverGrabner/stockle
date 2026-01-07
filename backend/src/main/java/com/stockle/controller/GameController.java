@@ -384,9 +384,9 @@ public class GameController {
         }
         double average = wins > 0 ? (double) totalGuesses / wins : 0;
 
-        // Calculate percentile
+        // Calculate percentile - count players who did WORSE than you (higher index)
         int playersYouBeat = 0;
-        for (int i = index; i < 7; i++) {
+        for (int i = index + 1; i < 7; i++) {
             int count = newDistribution[i] != null ? newDistribution[i] : 0;
             playersYouBeat += count;
         }
