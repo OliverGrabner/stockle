@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, DM_Serif_Display } from "next/font/google";
+import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -81,6 +82,18 @@ export default function RootLayout({
         <Toaster />
         <SpeedInsights />
         <Analytics />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-4K59Z3CZHS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-4K59Z3CZHS');
+          `}
+        </Script>
       </body>
     </html>
   );
