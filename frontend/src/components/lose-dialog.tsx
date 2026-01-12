@@ -108,7 +108,7 @@ toast.success("Copied to clipboard!")
 
 return (
 <Dialog open={open} onOpenChange={onClose}>
-<DialogContent>
+<DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto">
 <DialogHeader>
 <DialogTitle className="text-center text-2xl">{gaveUp ? "You Gave Up" : "Game Over"}</DialogTitle>
 </DialogHeader>

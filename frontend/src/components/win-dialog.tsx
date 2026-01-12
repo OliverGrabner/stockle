@@ -134,7 +134,7 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Congratulations!</DialogTitle>
           <DialogDescription>

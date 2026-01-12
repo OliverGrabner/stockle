@@ -40,6 +40,7 @@ interface SavedGameState {
 }
 
 const GAME_STORAGE_KEY = 'stockle-game-state'
+const FIRST_VISIT_KEY = 'stockle-has-visited'
 
 function getTodayString(): string {
   // Use local time, not UTC, so localStorage resets at user's local midnight
@@ -100,6 +101,8 @@ export function Game({
   // Load saved game state on mount
   useEffect(() => {
     const saved = loadGameState()
+    let showWinLoseDialog = false
+
     if (saved) {
       setGuesses(saved.guesses)
       setGaveUp(saved.gaveUp)
@@ -113,10 +116,20 @@ export function Game({
 
       if (wasWon) {
         setTimeout(() => setShowWinDialog(true), 500)
+        showWinLoseDialog = true
       } else if (wasLost) {
         setTimeout(() => setShowLoseDialog(true), 500)
+        showWinLoseDialog = true
       }
     }
+
+    // Show tutorial for first-time visitors (unless a win/lose dialog is showing)
+    const hasVisited = localStorage.getItem(FIRST_VISIT_KEY)
+    if (!hasVisited && !showWinLoseDialog) {
+      setShowTutorial(true)
+      localStorage.setItem(FIRST_VISIT_KEY, 'true')
+    }
+
     setGameLoaded(true)
   }, [])
 
