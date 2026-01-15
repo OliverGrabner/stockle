@@ -48,6 +48,7 @@ public class GameController {
                     data.put("name", stock.getCompanyName());
                     data.put("sector", stock.getSector());
                     data.put("industry", stock.getIndustry());
+                    data.put("marketCap", stock.getMarketCap());
                     return data;
                 })
                 .collect(Collectors.toList());

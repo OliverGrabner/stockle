@@ -22,6 +22,7 @@ export async function loadStocksWithMetadata(): Promise<Stock[]> {
       name: string
       sector: string
       industry: string
+      marketCap: number | null
     }>
 
     // Merge backend data with frontend logo URLs
@@ -33,6 +34,7 @@ export async function loadStocksWithMetadata(): Promise<Stock[]> {
         logo: staticStock?.logo || '',
         sector: backendStock.sector,
         industry: backendStock.industry,
+        marketCap: backendStock.marketCap ?? undefined,
       }
     })
   } catch (error) {

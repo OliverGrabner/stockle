@@ -24,8 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Stock } from "@/data/stocks"
 import { loadFilterOptions, FilterOptions } from "@/lib/stock-service"
+import { formatMarketCap } from "@/lib/utils"
 
 interface StockSearchProps {
   onSubmit: (stock: Stock) => void
@@ -45,6 +47,9 @@ export function StockSearch({ onSubmit, disabled, loading, stocks }: StockSearch
   const [filterType, setFilterType] = React.useState<'sector' | 'industry'>('sector')
   const [filterValue, setFilterValue] = React.useState<string>('')
   const [filterResults, setFilterResults] = React.useState<Stock[]>([])
+
+  // Market cap toggle state
+  const [showMarketCap, setShowMarketCap] = React.useState(false)
 
   React.useEffect(() => {
     loadFilterOptions().then(setFilterOptions)
@@ -177,9 +182,16 @@ export function StockSearch({ onSubmit, disabled, loading, stocks }: StockSearch
                           e.currentTarget.style.display = "none"
                         }}
                       />
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{stock.ticker}</span>
-                        <span className="text-sm text-muted-foreground">
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">{stock.ticker}</span>
+                          {showMarketCap && (
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {formatMarketCap(stock.marketCap)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm text-muted-foreground truncate">
                           {stock.name}
                         </span>
                       </div>
@@ -202,6 +214,20 @@ export function StockSearch({ onSubmit, disabled, loading, stocks }: StockSearch
             <Send className="h-4 w-4" />
           )}
         </Button>
+      </div>
+
+      {/* Market Cap Toggle */}
+      <div className="flex justify-center px-1">
+        <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground">
+          <Checkbox
+            id="show-market-cap"
+            checked={showMarketCap}
+            onCheckedChange={(checked) => setShowMarketCap(checked === true)}
+            disabled={disabled}
+            className="h-3 w-3"
+          />
+          Show market cap
+        </label>
       </div>
 
       {/* Filter Dialog */}
@@ -294,8 +320,15 @@ export function StockSearch({ onSubmit, disabled, loading, stocks }: StockSearch
                             e.currentTarget.style.display = "none"
                           }}
                         />
-                        <div className="flex flex-col min-w-0">
-                          <span className="font-semibold">{stock.ticker}</span>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold">{stock.ticker}</span>
+                            {showMarketCap && (
+                              <span className="text-xs text-muted-foreground font-mono">
+                                {formatMarketCap(stock.marketCap)}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-sm text-muted-foreground truncate">
                             {stock.name}
                           </span>

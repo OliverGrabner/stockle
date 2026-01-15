@@ -45,7 +45,7 @@ export function PriceChart({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<"Area"> | null>(null)
-  const [range, setRange] = useState<Range>("1Y")
+  const [range, setRange] = useState<Range>("5Y")
   const [fullData, setFullData] = useState<ChartDataPoint[]>([])
   const [filteredData, setFilteredData] = useState<ChartDataPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
