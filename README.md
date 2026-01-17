@@ -6,16 +6,16 @@ Wordle but for stocks. I saw that there was none and wanted to play it so I made
 
 ## Tech Stack
 
-**Backend**: Spring Boot 3.2 + Java
-**Database**: PostgreSQL
-**Infrastructure**: Kubernetes, Docker, Nginx Ingress
-**Data Pipeline**: Python, yfinance API, Kubernetes CronJob
-**Frontend**: Next.js, React, TypeScript, Vercel
+- **Backend**: Spring Boot 3.2 + Java 
+- **Database**: PostgreSQL
+- **Infrastructure**: Kubernetes, Docker, Nginx Ingress
+- **Data Pipeline**: Python, yfinance API, Kubernetes CronJob
+- **Frontend**: Next.js, React, TypeScript, Vercel
 
 
 ## How It Works
 
-### Daily Puzzle Generation
+### Daily Puzzle CronJob
 A Python script runs daily to:
 - Fetch real-time data for 250 top US stocks from Yahoo Finance
 - Select a random stock from the top 50 by market cap (avoiding repeats from the last 30 days)
@@ -40,7 +40,13 @@ A Python script runs daily to:
 5. Players get 6 guesses and 3 progressive hints (sector, industry, logo)
 
 ### Database Schema
-```sql
-stocks (ticker, company_name, sector, industry, market_cap, current_price, pe_ratio, dividend_yield)
-daily_puzzles (puzzle_date, ticker, price_history[JSONB])
-```
+
+#### **stocks**
+| ticker | company_name | sector | industry | market_cap | current_price | pe_ratio | dividend_yield |
+|--------|--------------|--------|----------|------------|---------------|----------|----------------|
+| AAPL | Apple Inc. | Technology | Consumer Electronics | 3000000000000 | 178.50 | 28.5 | 0.55 |
+
+#### **daily_puzzles**
+| puzzle_date | ticker | price_history | distribution | total_plays |
+|-------------|--------|---------------|--------------|-------------|
+| 2024-01-15 | AAPL | [{date, open, high, low, close, volume}, ...] | [12, 25, 30, 18, 10, 3, 2] | 100 |

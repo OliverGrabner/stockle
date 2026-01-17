@@ -111,7 +111,7 @@ export function PriceChart({ className }: { className?: string }) {
         borderVisible: false,
       },
       localization: {
-        priceFormatter: (price: number) => `$${price.toFixed(2)}`,
+        priceFormatter: (price: number) => isMobile ? `$${Math.round(price)}` : `$${price.toFixed(2)}`,
       },
       crosshair: {
         horzLine: { visible: false },
@@ -126,7 +126,10 @@ export function PriceChart({ className }: { className?: string }) {
         const isMobile = window.innerWidth < 768
         chart.applyOptions({
           width: containerRef.current.clientWidth,
-          height: isMobile ? 250 : 400
+          height: isMobile ? 250 : 400,
+          localization: {
+            priceFormatter: (price: number) => isMobile ? `$${Math.round(price)}` : `$${price.toFixed(2)}`,
+          },
         })
       }
     }

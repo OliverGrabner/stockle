@@ -58,6 +58,7 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
           localStorage.removeItem(submittedKey)
         }
       }
+    
 
       fetch("/api/stats/submit", {
         method: "POST",
@@ -82,31 +83,12 @@ export function WinDialog({ open, guesses, hintsUsed = 0, onClose }: WinDialogPr
 
   useEffect(() => {
     if (open) {
-      const end = Date.now() + 3 * 1000
-      const colors = ["#22c55e", "#f59e0b", "#ffffff"]
-
-      const frame = () => {
-        if (Date.now() > end) return
-
-        confetti({
-          particleCount: 2,
-          angle: 60,
-          spread: 55,
-          startVelocity: 60,
-          origin: { x: 0, y: 0.5 },
-          colors: colors,
-        })
-        confetti({
-          particleCount: 2,
-          angle: 120,
-          spread: 55,
-          startVelocity: 60,
-          origin: { x: 1, y: 0.5 },
-          colors: colors,
-        })
-        requestAnimationFrame(frame)
-      }
-      frame()
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#22c55e", "#f59e0b"],
+      })
     }
   }, [open])
 

@@ -49,7 +49,7 @@ export function StockSearch({ onSubmit, disabled, loading, stocks }: StockSearch
   const [filterResults, setFilterResults] = React.useState<Stock[]>([])
 
   // Market cap toggle state
-  const [showMarketCap, setShowMarketCap] = React.useState(false)
+  const [showMarketCap, setShowMarketCap] = React.useState(true)
 
   React.useEffect(() => {
     loadFilterOptions().then(setFilterOptions)
